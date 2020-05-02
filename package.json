@@ -1,0 +1,19 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/ws": "^7.2.4",
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
+    "typescript": "^3.8.3",
+    "ws": "^7.2.5"
+  },
+  "engines": {
+    "node": "13.10"
+  },
+  "scripts": {
+    "start": "tsc && node dist/index.js"
+  }
+}
