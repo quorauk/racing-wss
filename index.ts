@@ -1,8 +1,11 @@
 import WebSocket from 'ws';
 import axios from "axios"
 import dotenv from "dotenv"
+import { v4 as uuidv4 } from "uuid"
 
 dotenv.config()
+
+const websockets = {}
 
 const gsheetsKey=process.env.GSHEETS_KEY
 
@@ -52,19 +55,30 @@ const wss = new WebSocket.Server({
     }
   });
 
+let latestData
+const setLatestData = async () => {
+    latestData = await getData("1zqI1Sc_wmUlObM6-FukcFu85htGsSFkSNCOgdXJuQDo", "Calculation Sheet", "!A2:H17")
+}
+setLatestData()
+
 wss.on('connection', async function connection(ws) {
-    const interval = setInterval(async () => {
-        console.log("sending")
-        const data = await getData("1zqI1Sc_wmUlObM6-FukcFu85htGsSFkSNCOgdXJuQDo", "Calculation Sheet", "!A2:H17")
-        ws.send(JSON.stringify(data))
+    const hookUUID = uuidv4()
 
-    }, parseInt(process.env.SEND_INTERVAL))
-
-    const data = await getData("1zqI1Sc_wmUlObM6-FukcFu85htGsSFkSNCOgdXJuQDo", "Calculation Sheet", "!A2:H17")
-    ws.send(JSON.stringify(data))
+    ws.send(JSON.stringify(latestData))
 
     ws.on('close', () => {
         console.log("closing")
-        clearInterval(interval)
+        delete websockets[hookUUID]
     })
+
+    websockets[hookUUID] = ws
 });
+
+setInterval(async () => {
+    console.log("sending")
+    await setLatestData()
+    Object.values(websockets).forEach((ws : WebSocket) => {
+        ws.send(JSON.stringify(latestData))
+    })
+
+}, parseInt(process.env.SEND_INTERVAL))
