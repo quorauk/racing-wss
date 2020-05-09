@@ -23,11 +23,11 @@ const getData = async (spreadsheet, table, range) => {
 const processData = (data) => {
     return data.values
         .filter((row) => row[1] !== '')
-        .map((row) => {
+        .map((row, index) => {
             return {
                 name: row[1],
                 best: row[6],
-                batch: row[7]
+                position: index + 1
             }
         })
 }
@@ -57,8 +57,8 @@ const wss = new WebSocket.Server({
 
 let latestData
 const setLatestData = async () => {
-    latestData = await getData("1zqI1Sc_wmUlObM6-FukcFu85htGsSFkSNCOgdXJuQDo", "Calculation Sheet", "!A2:H17")
-}
+    latestData = await getData("1zqI1Sc_wmUlObM6-FukcFu85htGsSFkSNCOgdXJuQDo", "Sorted times for Commentary", "!A2:G17") }
+
 setLatestData()
 
 wss.on('connection', async function connection(ws) {
